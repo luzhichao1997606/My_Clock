@@ -7,7 +7,7 @@
  * @attention: 注意：
  * @Date: 2020-07-18 13:39:48
  * @LastEditors: lzc
- * @LastEditTime: 2020-07-25 10:55:27
+ * @LastEditTime: 2020-07-28 17:05:24
  */
 /* Hello World Example
 
@@ -109,42 +109,44 @@ void app_main()
         ESP_ERROR_CHECK(nvs_flash_erase());
         err = nvs_flash_init();
     }
+    printf("Ver is 1.0.0 \r\n");
     ESP_ERROR_CHECK(err);
     initialise_wifi();
     while (xSemaphoreTake(xSemaphore_WIFI, (TickType_t) 10) != pdTRUE); // @suppress("Symbol is not resolved")
     Falg = true; // @suppress("Symbol is not resolved")
     if (Falg)
     {
-        time(&now);
-        localtime_r(&now, &timeinfo);
-        //是否设置了时间？如果不是，则tm_year将为（1970-1900）。
-        if (timeinfo.tm_year < (2016 - 1900))
-        {
-            ESP_LOGI(SNTP_Tag, "时间尚未设置,通过NTP获得时间");
-            obtain_time();
-            // 用当前时间更新'now'变量
-            time(&now);
-        }
-        // 将时区设置为中国标准时间
-        setenv("TZ", "CST-8", 1);
-        tzset();
-        localtime_r(&now, &timeinfo);
-        strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-        ESP_LOGI(SNTP_Tag, "The current date/time in Shanghai is: %s", strftime_buf);
-        if (sntp_get_sync_mode() == SNTP_SYNC_MODE_SMOOTH)
-        {
-            struct timeval outdelta;
-            while (sntp_get_sync_status() == SNTP_SYNC_STATUS_IN_PROGRESS)
-            {
-                adjtime(NULL, &outdelta);
-                ESP_LOGI(SNTP_Tag, "Waiting for adjusting time ... outdelta = %li sec: %li ms: %li us",
-                         outdelta.tv_sec,
-                         outdelta.tv_usec / 1000,
-                         outdelta.tv_usec % 1000);
-                vTaskDelay(2000 / portTICK_PERIOD_MS);
-            }
-        }
-        //xTaskCreate(&simple_ota_example_task, "ota_example_task", 8192, NULL, 5, &OTA_Handler);
-        xTaskCreate(&advanced_ota_example_task, "advanced_ota_example_task", 1024 * 8, NULL, 5, &OTA_Handler);
+        //time(&now);
+        //localtime_r(&now, &timeinfo);
+        ////是否设置了时间？如果不是，则tm_year将为（1970-1900）。
+        //if (timeinfo.tm_year < (2016 - 1900))
+        //{
+        //    ESP_LOGI(SNTP_Tag, "时间尚未设置,通过NTP获得时间");
+        //    obtain_time();
+        //    // 用当前时间更新'now'变量
+        //    time(&now);
+        //}
+        //// 将时区设置为中国标准时间
+        //setenv("TZ", "CST-8", 1);
+        //tzset();
+        //localtime_r(&now, &timeinfo);
+        //strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+        //ESP_LOGI(SNTP_Tag, "The current date/time in Shanghai is: %s", strftime_buf);
+        //if (sntp_get_sync_mode() == SNTP_SYNC_MODE_SMOOTH)
+        //{
+        //    struct timeval outdelta;
+        //    while (sntp_get_sync_status() == SNTP_SYNC_STATUS_IN_PROGRESS)
+        //    {
+        //        adjtime(NULL, &outdelta);
+        //        ESP_LOGI(SNTP_Tag, "Waiting for adjusting time ... outdelta = %li sec: %li ms: %li us",
+        //                 outdelta.tv_sec,
+        //                 outdelta.tv_usec / 1000,
+        //                 outdelta.tv_usec % 1000);
+        //        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        //    }
+        //}
+        ////xTaskCreate(&simple_ota_example_task, "ota_example_task", 8192, NULL, 5, &OTA_Handler);
+        ////xTaskCreate(&advanced_ota_example_task, "advanced_ota_example_task", 1024 * 8, NULL, 5, &OTA_Handler);
+        xTaskCreate(&ota_example_task, "ota_example_task", 8192, NULL, 5, &OTA_Handler);
     }
 }
